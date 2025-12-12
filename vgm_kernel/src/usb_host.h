@@ -9,3 +9,5 @@ void usb_host_task();
 // Global cursor (temp)
 extern int g_cursor_x;
 extern int g_cursor_y;
+
+bool pop_key(uint8_t *key);

@@ -1,22 +1,49 @@
 #include "../../shared/fvp_protocol.h"
 #include "fvp_transport.h"
 #include "pico/stdlib.h"
+#include "usb_host.h"
 #include "video.h"
 #include <stdio.h>
 
+#include "ui.h"
+
 // Define LED pin if not defined by board header
 #ifndef PICO_DEFAULT_LED_PIN
-#define PICO_DEFAULT_LED_PIN 25
-#endif
+// Userland API
+bool sys_get_input(void *event) {
+  // Treat event as char* for now for simplicity
+  return pop_key((uint8_t *)event);
+}
+
+// Syscall Table Implementation
+SyscallTable g_syscalls = {
+    .draw_pixel =
+        [](int x, int y, bool on) {
+          VideoSystem::get_instance().set_pixel(x, y, on);
+        },
+    .draw_string =
+        [](int x, int y, const char *str) {
+          VideoSystem::get_instance().draw_string(x, y, str);
+        },
+    .clear = []() { VideoSystem::get_instance().clear(); },
+    .flush = []() { VideoSystem::get_instance().flush(); },
+    .get_input = sys_get_input,
+    .fopen = fvp_fopen,
+    .fread = fvp_fread,
+    .fwrite = fvp_fwrite,
+    .fclose = fvp_fclose,
+};
 
 int main() {
   stdio_init_all();
 
+  // Placed at fixed address by linker script usually, or we just copy it there
+  // For this prototype, let's assume we copy it to 0x20000080
+  memcpy((void *)0x20000080, &g_syscalls, sizeof(g_syscalls));
+
   // Init HW
   gpio_init(PICO_DEFAULT_LED_PIN);
   gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
-
-#include "ui.h"
 
   // ... existing code ...
 
@@ -37,10 +64,14 @@ int main() {
 
   while (true) {
     // ... polling code ...
+    // 2. Poll TinyUSB
+    usb_host_task();
 
     // Update
-    // Mock mouse movement
-    cursor.update((frame_count % 3) - 1, (frame_count % 2) - 1);
+    // 3. Update Graphics
+    // Set cursor from USB state
+    cursor.x_ = g_cursor_x;
+    cursor.y_ = g_cursor_y;
 
     // Draw
     video.clear();
