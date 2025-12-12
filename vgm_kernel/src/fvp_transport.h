@@ -1,5 +1,5 @@
 #pragma once
-#include "fvp_protocol.h"
+#include "../../shared/fvp_protocol.h"
 #include <stddef.h>
 #include <stdint.h>
 

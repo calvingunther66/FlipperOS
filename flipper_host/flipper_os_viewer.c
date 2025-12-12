@@ -1,9 +1,12 @@
-#include "fvp_protocol.h"
+#include "../shared/fvp_protocol.h"
 #include "fvp_transport.h"
 #include <furi.h>
 #include <furi_hal.h>
 #include <gui/gui.h>
 #include <input/input.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 // 128x64 / 8 bits per byte = 1024 bytes
 #define FRAME_BUFFER_SIZE (128 * 64 / 8)

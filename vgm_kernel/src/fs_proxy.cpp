@@ -1,5 +1,7 @@
 #include "fs_proxy.h"
+#include "../../shared/fvp_protocol.h"
 #include "fvp_transport.h"
+#include <stdio.h>
 #include <string.h>
 
 // Blocking calls using Transport

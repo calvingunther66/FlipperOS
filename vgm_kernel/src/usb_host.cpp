@@ -1,5 +1,6 @@
 #include "pico/stdlib.h"
 #include "tusb.h"
+#include <stdint.h>
 #include <stdio.h>
 
 // Forward declaration or include for VideoSystem to update cursor

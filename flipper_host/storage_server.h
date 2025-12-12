@@ -1,6 +1,7 @@
 #pragma once
-#include "fvp_protocol.h"
+#include "../shared/fvp_protocol.h"
 #include <furi.h>
+#include <stdint.h>
 #include <storage/storage.h>
 
 void storage_server_init();

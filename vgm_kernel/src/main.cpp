@@ -1,4 +1,4 @@
-#include "fvp_protocol.h"
+#include "../../shared/fvp_protocol.h"
 #include "fvp_transport.h"
 #include "pico/stdlib.h"
 #include "video.h"
@@ -45,7 +45,7 @@ int main() {
     video.draw_string(2, 2, "FlipperOS v0.1");
 
     char buf[32];
-    snprintf(buf, sizeof(buf), "Frame: %lu", frame_count++);
+    snprintf(buf, sizeof(buf), "Frame: %lu", (unsigned long)frame_count++);
     video.draw_string(2, 12, buf);
 
     // Draw a generic moving box

@@ -1,6 +1,6 @@
 #include "api.h"
 
-extern "C" void main() {
+extern "C" int main() {
   os_clear();
   os_draw_string(0, 0, "Word Editor v1.0");
   os_draw_string(0, 10, "Type something...");

@@ -1,7 +1,7 @@
 #include "api.h"
 
 // Entry point
-extern "C" void main() {
+extern "C" int main() {
   int selected = 0;
 
   while (1) {
