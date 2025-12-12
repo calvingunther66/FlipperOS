@@ -1,65 +1,61 @@
 #pragma once
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 // FVP - Flipper Video Protocol Definitions
 
 #define FVP_MAGIC 0xFE
-#define FVP_VERSION 1
+#define FVP_VERSION 2
 
-// Command Codes
+// Command Codes (Strict Match)
 enum FvpCommand {
-    FVP_CMD_PING = 0x01,
-    FVP_CMD_PONG = 0x02,
-    
-    // Video Stream
-    FVP_CMD_FRAME_DATA = 0x10, // Payload: Raw pixel data
-    
-    // Input Stream
-    FVP_CMD_INPUT_EVENT = 0x20, // Payload: FvpInputEvent
-    
-    // Storage Stream
-    FVP_CMD_FS_OPEN  = 0x30, // Open file
-    FVP_CMD_FS_READ  = 0x31, // Read file
-    FVP_CMD_FS_WRITE = 0x32, // Write file
-    FVP_CMD_FS_CLOSE = 0x33, // Close file
-    FVP_CMD_FS_DIR   = 0x34, // List directory
-    
-    // Storage Responses
-    FVP_CMD_FS_OK    = 0x40,
-    FVP_CMD_FS_DATA  = 0x41,
-    FVP_CMD_FS_ERROR = 0x42,
+  CMD_PING = 0x01,
+  CMD_PONG = 0x02,
+
+  // CMD_VIDEO_FRAME: Chunk of pixel data from VGM -> Flipper.
+  CMD_VIDEO_FRAME = 0x10,
+
+  // CMD_INPUT_EVENT: Button press from Flipper -> VGM.
+  CMD_INPUT_EVENT = 0x20,
+
+  // CMD_FILE_*: RPC commands from VGM -> Flipper
+  CMD_FILE_OPEN = 0x30,
+  CMD_FILE_READ = 0x31,
+  CMD_FILE_WRITE = 0x32,
+  CMD_FILE_CLOSE = 0x33, // Added for completeness, though not explicitly
+                         // requested in list it's implied by "RPC commands"
+  CMD_FILE_DIR = 0x34,
+
+  // Storage Responses
+  CMD_FILE_OK = 0x40,
+  CMD_FILE_DATA = 0x41,
+  CMD_FILE_ERROR = 0x42,
+
+  // CMD_USB_HID: Mouse/Keyboard data (internal OS usage)
+  CMD_USB_HID = 0x50,
 };
 
-// Input Types
-enum FvpInputType {
-    FVP_INPUT_BUTTON = 0,
-    FVP_INPUT_MOUSE  = 1,
-    FVP_INPUT_KEY    = 2,
-};
-
-// Structures (Packed to ensure consistent alignment)
+// Structures
 #pragma pack(push, 1)
 
 typedef struct {
-    uint8_t magic;
-    uint8_t version;
-    uint8_t command;
-    uint16_t payload_len;
-    // Payload follows
+  uint8_t magic;
+  uint8_t version;
+  uint8_t command;
+  uint16_t payload_len;
+  // Payload follows
 } FvpHeader;
 
 typedef struct {
-    uint8_t type; // FvpInputType
-    uint16_t data; // Keycode, or button mask
-    int8_t x;     // Mouse dx
-    int8_t y;     // Mouse dy
+  uint8_t type;  // 0=Button, 1=Mouse, 2=Key
+  uint16_t data; // Keycode or button mask
+  int8_t x;      // Mouse dx
+  int8_t y;      // Mouse dy
 } FvpInputEvent;
 
-// File System Request Structures
 typedef struct {
-    uint8_t flags; // Read/Write/Append
-    char path[128];
-} FvpFsOpenReq;
+  uint8_t flags; // Read/Write
+  char path[128];
+} FvpFileOpenReq;
 
 #pragma pack(pop)

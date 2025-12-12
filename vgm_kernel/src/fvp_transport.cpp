@@ -16,7 +16,7 @@ public:
     FvpHeader header;
     header.magic = FVP_MAGIC;
     header.version = FVP_VERSION;
-    header.command = FVP_CMD_FRAME_DATA;
+    header.command = CMD_VIDEO_FRAME;
     header.payload_len = (uint16_t)size;
 
     // In a real high-speed impl, this would use DMA

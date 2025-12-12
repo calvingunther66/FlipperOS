@@ -75,7 +75,7 @@ int32_t flipper_os_viewer_app(void *p) {
 
       // Forward Input to VGM
       FvpInputEvent fvp_input;
-      fvp_input.type = FVP_INPUT_BUTTON;
+      fvp_input.type = 0; // 0=Button
       fvp_input.data = 0; // TODO: Map key to bitmask or code
 
       // Simple mapping for now

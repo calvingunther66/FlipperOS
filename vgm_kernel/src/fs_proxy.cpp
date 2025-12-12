@@ -12,14 +12,14 @@ FvpFileHandle fvp_fopen(const char *path, uint8_t mode) {
   FvpTransport &transport = FvpTransport::get_instance();
 
   // 1. Send Open Request
-  FvpFsOpenReq req;
+  FvpFileOpenReq req;
   req.flags = mode;
   strncpy(req.path, path, sizeof(req.path) - 1);
 
   FvpHeader header;
   header.magic = FVP_MAGIC;
   header.version = FVP_VERSION;
-  header.command = FVP_CMD_FS_OPEN;
+  header.command = CMD_FILE_OPEN;
   header.payload_len = sizeof(req);
 
   transport.send_packet(header, (const uint8_t *)&req);

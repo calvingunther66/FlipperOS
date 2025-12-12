@@ -1,4 +1,7 @@
+#include "../shared/fvp_protocol.h"
+#include <furi.h>
 #include <stdlib.h>
+#include <storage/storage.h>
 #include <string.h>
 
 static Storage *g_storage = NULL;
@@ -14,12 +17,12 @@ void storage_server_handle_command(FvpHeader *header, uint8_t *payload,
   // Default response is ERROR
   response_header->magic = FVP_MAGIC;
   response_header->version = FVP_VERSION;
-  response_header->command = FVP_CMD_FS_ERROR;
+  response_header->command = CMD_FILE_ERROR;
   response_header->payload_len = 0;
 
   switch (header->command) {
-  case FVP_CMD_FS_OPEN: {
-    FvpFsOpenReq *req = (FvpFsOpenReq *)payload;
+  case CMD_FILE_OPEN: {
+    FvpFileOpenReq *req = (FvpFileOpenReq *)payload;
     File *file = storage_file_alloc(g_storage);
 
     const char *flags_str = "r";
@@ -30,7 +33,7 @@ void storage_server_handle_command(FvpHeader *header, uint8_t *payload,
 
     if (storage_file_open(file, req->path, FSAM_READ_WRITE, FSOM_OPEN_ALWAYS)) {
       // Success
-      response_header->command = FVP_CMD_FS_OK;
+      response_header->command = CMD_FILE_OK;
       // Send back file handle as 32-bit ID
       uint32_t handle = (uint32_t)file;
       memcpy(response_payload, &handle, sizeof(handle));
@@ -41,7 +44,7 @@ void storage_server_handle_command(FvpHeader *header, uint8_t *payload,
     }
     break;
   }
-  case FVP_CMD_FS_READ: {
+  case CMD_FILE_READ: {
     // Payload: [Handle (4)] [Len (4)]
     uint32_t handle;
     uint32_t len;
@@ -54,17 +57,17 @@ void storage_server_handle_command(FvpHeader *header, uint8_t *payload,
       len = 200; // Small buffer for packet
 
     uint16_t read = storage_file_read(file, response_payload, len);
-    response_header->command = FVP_CMD_FS_DATA;
+    response_header->command = CMD_FILE_DATA;
     response_header->payload_len = read;
     break;
   }
-  case FVP_CMD_FS_CLOSE: {
+  case CMD_FILE_CLOSE: { // Assuming CLOSE was kept or mapped 0x33
     uint32_t handle;
     memcpy(&handle, payload, 4);
     File *file = (File *)handle;
     storage_file_close(file);
     storage_file_free(file);
-    response_header->command = FVP_CMD_FS_OK;
+    response_header->command = CMD_FILE_OK;
     break;
   }
   }
